@@ -1,3 +1,4 @@
+CREATE DATABASE IF NOT EXISTS `QADatabase`;
 USE QADatabase;
 
 CREATE TABLE `user` (
@@ -27,6 +28,7 @@ CREATE TABLE `post` (
     `created_time` DATETIME NOT NULL,
     `updated_time` DATETIME,
     `content` TEXT,
+    `title` TEXT,
     `view_count` INT DEFAULT 0,
     PRIMARY KEY (`post_id`),
     FOREIGN KEY (`author_id`) REFERENCES `user` (`user_id`),
@@ -47,3 +49,11 @@ CREATE TABLE `reply` (
     FOREIGN KEY (`author_id`) REFERENCES `user` (`user_id`),
     FOREIGN KEY (`importance_id`) REFERENCES `importance` (`importance_id`)
 );
+
+INSERT INTO `users` (`user_id`, `email_id`, `password`, `name`, `type`, `birth`, `sex`, `address`, `phone`) VALUES
+	(1, 'admin', 'admin', '관리자계정', 1, NULL, NULL, NULL, NULL),
+	(2, 'user1', '1234', 'user계정1', 0, NULL, NULL, NULL, NULL),
+	(3, 'user2', '1234', 'user계정2', 0, NULL, NULL, NULL, NULL),
+	(4, 'user3', '1234', 'user계정3', 0, NULL, NULL, NULL, NULL),
+	(5, 'user4', '1234', 'user계정4', 0, NULL, NULL, NULL, NULL),
+	(6, 'user5', '1234', 'user계정5', 0, NULL, NULL, NULL, NULL);
