@@ -1,20 +1,31 @@
 import mysql.connector
+from mysql.connector import Error
+import yaml
 
-conn = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    password="ny2790827!",
-    database="QADatabase"
-)
+with open('config.yaml', 'r') as f:
+    config = yaml.load(f, Loader=yaml.SafeLoader)
 
-cursor = conn.cursor()
+def create_server_connection():
+    connection = None
+    try:
+        connection = mysql.connector.connect(
+            host= config["host"],
+            user= config["user"],
+            password= config["password"],
+            database= config["database"]
+        )
+        print("MySQL Database connection successful")
+    except Error as e:
+        print(f"The error '{e}' occurred")
 
-cursor.execute("SHOW TABLES")
+    return connection
+    
+def execute_query(connection, query):
+    cursor = connection.cursor()
+    try:
+        cursor.execute(query)
+        connection.commit()
+        print("Query successful")
+    except Error as e:
+        print(f"The error '{e}' occurred")
 
-rows = cursor.fetchall()
-
-for row in rows:
-    print(row)
-
-cursor.close()
-conn.close()
