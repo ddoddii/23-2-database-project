@@ -37,3 +37,8 @@
 ### Application Flowchart
 
 <img width="863" alt="image" src="https://github.com/ddoddii/ddoddii.github.io/assets/95014836/e51b3777-a685-44c0-bc2e-79117fe29bd9">
+
+-------
+## 기능 
+- User
+  - type : 관리자(1), user(0)
