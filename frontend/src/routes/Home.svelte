@@ -1,16 +1,38 @@
 <script>
     import fastapi from "../lib/api"
     import { link } from 'svelte-spa-router'
-
     let post_list = []
 
-    fastapi('get', '/api/post/list', {}, (json) => {
-        post_list = json
-    })
+    function get_post_list() {
+        fastapi('get', '/api/post/list', {}, (json) => {
+            post_list = json
+            console.log("post list", post_list)
+        })
+    }
+
+    get_post_list()
 </script>
 
-<ul>
-    {#each post_list as post}
-        <li><a use:link href="/detail/{post.id}">{post.subject}</a></li>
-    {/each}
-</ul>
+<div class="container my-3">
+    <table class="table">
+        <thead>
+        <tr class="table-dark">
+            <th>번호</th>
+            <th>제목</th>
+            <th>작성일시</th>
+        </tr>
+        </thead>
+        <tbody>
+        {#each post_list as post, i}
+        <tr>
+            <td>{i+1}</td>
+            <td>
+                <a use:link href="/detail/{post.post_id}">{post.title}</a>
+            </td>
+            <td>{post.created_time}</td>
+        </tr>
+        {/each}
+        </tbody>
+    </table>
+    <a use:link href="/question-create" class="btn btn-primary">글 등록하기</a>
+</div>
