@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
-from routers import auth, post
+from routers import auth, post, reply
 
 app = FastAPI()
 
@@ -25,3 +25,4 @@ def hello():
 
 app.include_router(auth.router)
 app.include_router(post.router)
+app.include_router(reply.router)

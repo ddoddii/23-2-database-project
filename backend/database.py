@@ -23,7 +23,7 @@ def create_server_connection():
 
 
 def execute_query(connection, query):
-    cursor = connection.cursor()
+    cursor = connection.cursor(dictionary=True)
     try:
         cursor.execute(query)
         connection.commit()
@@ -33,8 +33,9 @@ def execute_query(connection, query):
         print(f"The error '{e}' occurred")
 
 
+# For select query
 def execute_read_query(connection, query):
-    cursor = connection.cursor()
+    cursor = connection.cursor(dictionary=True)
     result = None
     try:
         cursor.execute(query)
@@ -43,3 +44,15 @@ def execute_read_query(connection, query):
     except Error as e:
         print(f"The error '{e}' occurred")
     return result
+
+
+def execute_single_read_query(connection, query, params=None):
+    cursor = connection.cursor(dictionary=True)
+    try:
+        cursor.execute(query, params or ())
+        result = cursor.fetchone()  # Fetch the first row only
+        return result
+    except Error as e:
+        print(f"The error '{e}' occurred")
+    finally:
+        cursor.close()

@@ -10,7 +10,7 @@ from pydantic import BaseModel
 
 from database import *
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+router = APIRouter(prefix="", tags=["auth"])
 
 bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_bearer = OAuth2PasswordBearer(tokenUrl="auth/token")
@@ -25,7 +25,7 @@ class CreateUserRequest(BaseModel):
     name: str
     type: Optional[int] = 0
     birth: Optional[datetime] = None
-    sex: Optional[int] = 0
+    sex: Optional[str] = None
     address: Optional[str] = None
     phone: Optional[str] = None
 
@@ -40,7 +40,7 @@ class LoginUserRequest(BaseModel):
     password: str
 
 
-@router.post("/")
+@router.post("/api/user/create")
 async def create_user(create_user_request: CreateUserRequest):
     check_duplicate_username(create_user_request.username)
     hashed_password = bcrypt_context.hash(create_user_request.password)
@@ -69,6 +69,21 @@ async def create_user(create_user_request: CreateUserRequest):
         raise HTTPException(status_code=400, detail=f"Error: {e}")
 
 
+@router.post("/api/user/login", response_model=Token)
+async def login_for_access_token(
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
+) -> dict:
+    user = authenticate_user(form_data.username, form_data.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate user"
+        )
+    token = create_access_token(
+        user["username"], user["user_id"], timedelta(minutes=60)
+    )
+    return {"access_token": token, "token_type": "bearer", "username": user["username"]}
+
+
 @router.get("/users", status_code=status.HTTP_200_OK)
 def get_all_users():
     connection = create_server_connection()
@@ -77,11 +92,11 @@ def get_all_users():
     """
     user_names = execute_read_query(connection, query)
     connection.close()
-    user_names_list = [name[0] for name in user_names]
+    user_names_list = [name["username"] for name in user_names]
     return {"users": user_names_list}
 
 
-@router.post("/token", response_model=Token)
+@router.post("/auth/token", response_model=Token)
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
 ) -> dict:
