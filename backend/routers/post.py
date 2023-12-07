@@ -4,6 +4,10 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from starlette import status
 
+from domain.importance_crud import (
+    get_importance,
+    update_all_post_importance_score,
+)
 from domain.post_crud import (
     get_post,
     create_new_post,
@@ -12,6 +16,7 @@ from domain.post_crud import (
     update_post,
     delete_post,
     vote_post,
+    view_post,
 )
 from .auth import get_current_user
 
@@ -25,6 +30,10 @@ class DeletePostRequest(BaseModel):
 
 
 class VotePostRequest(BaseModel):
+    post_id: int
+
+
+class ViewPostRequest(BaseModel):
     post_id: int
 
 
@@ -82,3 +91,13 @@ def delete_post_api(post_id: int, user: user_dependency):
 def post_vote_api(request: VotePostRequest, user: user_dependency):
     user_id = user.get("id")
     vote_post(user_id, request.post_id)
+
+
+@router.post("/view")
+def post_view_api(request: ViewPostRequest):
+    view_post(request.post_id)
+
+
+@router.post("/importance_score")
+def view_importance_score_api():
+    update_all_post_importance_score()

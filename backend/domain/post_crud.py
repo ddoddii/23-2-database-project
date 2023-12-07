@@ -9,7 +9,6 @@ from database import (
     execute_single_read_query,
 )
 from domain.importance_crud import create_new_importance
-from domain.user_crud import get_user_id
 
 
 class PostRequest(BaseModel):
@@ -53,7 +52,7 @@ def get_post(post_id: int):
     connection = create_server_connection()
 
     query = """
-    SELECT post.post_id, post.author_id, post.title, post.content, post.created_time, post.updated_time, post.view_count, post.help_count, users.username
+    SELECT post.post_id, post.author_id, post.importance_id, post.title, post.content, post.created_time, post.updated_time, post.view_count, post.help_count, users.username
     FROM post 
     JOIN users ON post.author_id = users.user_id
     WHERE post_id = %s;
@@ -166,6 +165,33 @@ def vote_post(user_id, post_id):
         SET help_count = help_count + 1
         WHERE post_id = %s;
         """
+        cursor.execute(update_query, (post_id,))
+
+        # Commit the transaction
+        connection.commit()
+        return True
+
+    except Exception as e:
+        # Rollback in case of error
+        connection.rollback()
+        print(f"An error occurred: {e}")
+        return False
+
+    finally:
+        cursor.close()
+        connection.close()
+
+
+def view_post(post_id: int):
+    connection = create_server_connection()
+    cursor = connection.cursor(dictionary=True)
+    try:
+        # Update help_count in post table
+        update_query = """
+            UPDATE post
+            SET view_count = view_count + 1
+            WHERE post_id = %s;
+            """
         cursor.execute(update_query, (post_id,))
 
         # Commit the transaction

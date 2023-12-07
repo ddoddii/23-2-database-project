@@ -15,7 +15,6 @@ def create_server_connection():
             password=config["password"],
             database=config["database"],
         )
-        print("MySQL Database connection successful")
     except Error as e:
         print(f"The error '{e}' occurred")
 

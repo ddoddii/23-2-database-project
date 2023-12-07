@@ -8,10 +8,30 @@
         let params = {
             keyword : kw
         }
+        update_imortance_score()
         fastapi('get', '/api/post/list', params, (json) => {
             post_list = json
             console.log("post list", post_list)
         })
+    }
+
+    function add_view_count(_post_id){
+        let url = "/api/post/view"
+        let params = {
+                post_id: _post_id
+            }
+        fastapi('post', url, params)
+            .then(() => {           
+            console.log("조회수 증가 성공!");
+            })
+            .catch(error => {
+            console.error("조회수 증가 실패:", error);
+            });
+    }
+
+    function update_imortance_score(){
+        let url = "/api/post/importance_score"
+        fastapi('post', url)
     }
 
 </script>
@@ -45,7 +65,7 @@
         <tr class="text-center">
             <td>{i+1}</td>
             <td class="text-start">
-                <a use:link href="/detail/{post.post_id}">{post.title}</a>
+                <a use:link href="/detail/{post.post_id}" on:click={() => add_view_count(post.post_id)}>{post.title}</a>
             </td>
             <td>{ post ? post.username : "" }</td>
             <td>{post.created_time}</td>

@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 
 from database import create_server_connection, execute_single_read_query
 
@@ -29,7 +29,7 @@ def create_new_importance() -> int:
 def get_importance_from_post(post_id: int):
     connection = create_server_connection()
     query = """
-    SELECT * FROM post
+    SELECT post.importance_id FROM post
     WHERE post_id = %s;
     """
     importance = execute_single_read_query(connection, query, (post_id,))
@@ -57,23 +57,42 @@ def get_post(post_id: int):
     return post
 
 
-def update_importance_score(post_id: int, day: int):
+def update_all_post_importance_score():
+    # 현재 시간
+    now = datetime.now(timezone.utc)
+    utc_now = now.astimezone(timezone.utc).replace(tzinfo=None)
+
+    # 모든 게시글 목록 조회
+    posts = get_all_posts()
+    # 각 게시글의 중요도 갱신
+    for post in posts:
+        utc_created_time = (
+            post["created_time"].astimezone(timezone.utc).replace(tzinfo=None)
+        )
+        days = (utc_now - utc_created_time).days
+        update_importance_score(post["post_id"], days)
+
+
+def update_importance_score(post_id: int, days: int):
     connection = create_server_connection()
+    now = datetime.now()
     post = get_post(post_id)
     view = post["view_count"]
     help = post["help_count"]
     importance_id = post["importance_id"]
     # Update new score based on view, help, day
+    day = days % int(config["decayPeriod"])
     new_score = (
-        view * config["viewWeight"] ^ day + help * config["clicksWeight"] ^ day
-    ) * config["decayRate"] ^ day
+        view * float(config["viewsWeight"]) ** day
+        + help * float(config["clicksWeight"]) ** day
+    ) * float(config["decayRate"]) ** day
     query = """
         UPDATE importance
-        SET score = %s
+        SET score = %s, last_updated = %s
         WHERE importance_id = %s;
         """
     cursor = connection.cursor(dictionary=True)
-    cursor.execute(query, (new_score, importance_id))
+    cursor.execute(query, (round(new_score, 2), now, importance_id))
     connection.commit()
     cursor.close()
     connection.close()
@@ -83,3 +102,28 @@ def check_score_under_threshold(score: int):
     if score < config["threshold"]:
         return True
     return False
+
+
+def get_all_posts():
+    connection = create_server_connection()
+    cursor = connection.cursor(dictionary=True)
+    query = """
+                SELECT post.post_id, post.importance_id,post.created_time, DATEDIFF(NOW(), created_time) AS day
+                FROM post
+                ORDER BY post.created_time DESC;
+                """
+    cursor.execute(query)
+    posts = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    return posts
+
+
+def delete_post(post_id: int):
+    connection = create_server_connection()
+    cursor = connection.cursor(dictionary=True)
+    query = "DELETE FROM post WHERE post_id = %s;"
+    cursor.execute(query, (post_id,))
+    connection.commit()
+    cursor.close()
+    connection.close()

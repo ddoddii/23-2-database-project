@@ -37,6 +37,8 @@
         )
     }
 
+    
+
     function delete_post(_post_id) {
         if(window.confirm('정말로 삭제하시겠습니까?')) {
             let url = "/api/post/delete/" + _post_id
