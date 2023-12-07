@@ -1,6 +1,7 @@
 <script>
     import fastapi from "../lib/api"
     import { link } from 'svelte-spa-router'
+    import { is_login } from "../lib/store"
     let post_list = []
 
     function get_post_list() {
@@ -36,5 +37,6 @@
         {/each}
         </tbody>
     </table>
-    <a use:link href="/question-create" class="btn btn-primary">글 등록하기</a>
+    <a use:link href="/question-create" 
+        class="btn btn-primary {$is_login ? '' : 'disabled'}">글 등록하기</a>
 </div>

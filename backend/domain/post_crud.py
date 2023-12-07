@@ -133,3 +133,37 @@ def find_media_urls(content: str) -> (List[str], List[str]):
     video_urls = re.findall(video_pattern, content)
 
     return img_urls, video_urls
+
+
+def vote_post(user_id, post_id):
+    connection = create_server_connection()
+    cursor = connection.cursor(dictionary=True)
+    try:
+        # Insert into post_voter table
+        insert_query = """
+        INSERT INTO post_voter (post_id, user_id)
+        VALUES (%s, %s);
+        """
+        cursor.execute(insert_query, (post_id, user_id))
+
+        # Update help_count in post table
+        update_query = """
+        UPDATE post
+        SET help_count = help_count + 1
+        WHERE post_id = %s;
+        """
+        cursor.execute(update_query, (post_id,))
+
+        # Commit the transaction
+        connection.commit()
+        return True
+
+    except Exception as e:
+        # Rollback in case of error
+        connection.rollback()
+        print(f"An error occurred: {e}")
+        return False
+
+    finally:
+        cursor.close()
+        connection.close()
