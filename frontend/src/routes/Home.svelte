@@ -1,20 +1,36 @@
 <script>
     import fastapi from "../lib/api"
     import { link } from 'svelte-spa-router'
-    import { is_login } from "../lib/store"
+    import { is_login, keyword } from "../lib/store"
     let post_list = []
-
+    let kw = ''
     function get_post_list() {
-        fastapi('get', '/api/post/list', {}, (json) => {
+        let params = {
+            keyword : kw
+        }
+        fastapi('get', '/api/post/list', params, (json) => {
             post_list = json
             console.log("post list", post_list)
         })
     }
 
-    get_post_list()
 </script>
 
 <div class="container my-3">
+    <div class="row my-3">
+        <div class="col-6">
+            <a use:link href="/question-create" 
+                class="btn btn-primary {$is_login ? '' : 'disabled'}">글 등록하기</a>
+        </div>
+        <div class="col-6">
+            <div class="input-group">
+                <input type="text" class="form-control" bind:value="{kw}">
+                <button class="btn btn-outline-secondary" on:click={() => get_post_list(0)}>
+                    찾기
+                </button>
+            </div>
+        </div>
+    </div>
     <table class="table">
         <thead>
         <tr class="text-center table-dark">
@@ -37,6 +53,4 @@
         {/each}
         </tbody>
     </table>
-    <a use:link href="/question-create" 
-        class="btn btn-primary {$is_login ? '' : 'disabled'}">글 등록하기</a>
 </div>

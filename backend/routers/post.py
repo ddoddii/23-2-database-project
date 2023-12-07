@@ -29,8 +29,8 @@ class VotePostRequest(BaseModel):
 
 
 @router.get("/list")
-def post_list_api():
-    posts = get_post_list()
+def post_list_api(keyword: str = ""):
+    posts = get_post_list(keyword=keyword)
     return posts
 
 

@@ -17,17 +17,31 @@ class PostRequest(BaseModel):
     content: str
 
 
-def get_post_list():
+def get_post_list(keyword: str = ""):
     connection = create_server_connection()
     cursor = connection.cursor(dictionary=True)
 
-    query = """
-    SELECT post.post_id, post.title, post.content, post.created_time, post.updated_time, users.username
-    FROM post
-    JOIN users ON post.author_id = users.user_id
-    ORDER BY post.created_time DESC;
-    """
-    cursor.execute(query)
+    if keyword:
+        search = "%%{}%%".format(keyword)
+        query = """
+        SELECT post.post_id, post.title, post.content, post.created_time, post.updated_time, users.username
+        FROM post
+        JOIN users ON post.author_id = users.user_id
+        WHERE post.title LIKE %s OR
+              post.content LIKE %s OR
+              users.username LIKE %s
+        ORDER BY post.created_time DESC;
+        """
+        cursor.execute(query, (search, search, search))
+    else:
+        query = """
+        SELECT post.post_id, post.title, post.content, post.created_time, post.updated_time, users.username
+        FROM post
+        JOIN users ON post.author_id = users.user_id
+        ORDER BY post.created_time DESC;
+        """
+        cursor.execute(query)
+
     posts = cursor.fetchall()
     cursor.close()
     connection.close()
