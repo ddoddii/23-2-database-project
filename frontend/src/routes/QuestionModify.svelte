@@ -1,32 +1,46 @@
 <script>
     import { push } from 'svelte-spa-router'
-    import { is_login, username } from "../lib/store"
     import fastapi from "../lib/api"
+
+    export let params = {}
+    const post_id = params.post_id
+
     let title = ''
     let content = ''
-    console.log("create user requset username: ", $username)
-    function create_post(event) {
+
+    fastapi("get", "/api/post/detail/" + post_id, {}, (json) => {
+        title = json.title
+        content = json.content
+    })
+
+    function update_post(event) {
         event.preventDefault()
-        let url = "/api/post/create"
+        let url = "/api/post/update/" + post_id
         let params = {
             title: title,
             content: content,
         }
+        let token = localStorage.getItem('access_token'); 
+
+        // Set up headers for authentication
+        let headers = {
+            'Authorization': `Bearer ${token}`
+        };
         
-        fastapi('post', url, params, 
+        fastapi('put', url, params, 
             (json) => {
-                console.log("Post created by user ID:", json.user_id);
-                push("/")
+                push('/detail/'+post_id)
             },
             (json_error) => {
                 error = json_error
             },
+            headers
         )
     }
 </script>
 
 <div class="container">
-    <h5 class="my-3 border-bottom pb-2">글 등록</h5>
+    <h5 class="my-3 border-bottom pb-2">글 수정</h5>
     <form method="post" class="my-3">
         <div class="mb-3">
             <label for="title">제목</label>
@@ -36,6 +50,6 @@
             <label for="content">내용</label>
             <textarea class="form-control" rows="10" bind:value="{content}"></textarea>
         </div>
-        <button class="btn btn-primary" on:click="{create_post}">저장하기</button>
+        <button class="btn btn-primary" on:click="{update_post}">수정하기</button>
     </form>
 </div>

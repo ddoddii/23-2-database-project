@@ -6,6 +6,7 @@
   import Navigation from "./components/Navigation.svelte"
   import UserCreate from "./routes/UserCreate.svelte"
   import UserLogin from "./routes/UserLogin.svelte"
+  import QuestionModify from "./routes/QuestionModify.svelte"
 
 
   const routes = {
@@ -14,6 +15,7 @@
     '/question-create': QuestionCreate,
     '/user-create': UserCreate,
     '/user-login': UserLogin,
+    '/post-modify/:post_id': QuestionModify,
   }
 </script>
 <Navigation />

@@ -6,14 +6,15 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from jose import jwt, JWTError
 from passlib.context import CryptContext
+from passlib.handlers import mysql
 from pydantic import BaseModel
 
-from database import *
+from database import execute_read_query, create_server_connection
 
 router = APIRouter(prefix="", tags=["auth"])
 
 bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_bearer = OAuth2PasswordBearer(tokenUrl="auth/token")
+oauth2_bearer = OAuth2PasswordBearer(tokenUrl="api/user/login")
 
 SECRET_KEY = "e67cb6e960b18ce8ec8f683d28997ff83bada88df9321e52079f712c4e4c850e"
 ALGORITHM = "HS256"
@@ -33,6 +34,7 @@ class CreateUserRequest(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+    username: str
 
 
 class LoginUserRequest(BaseModel):
@@ -81,7 +83,8 @@ async def login_for_access_token(
     token = create_access_token(
         user["username"], user["user_id"], timedelta(minutes=60)
     )
-    return {"access_token": token, "token_type": "bearer", "username": user["username"]}
+    print(user["username"])
+    return {"username": user["username"], "access_token": token, "token_type": "bearer"}
 
 
 @router.get("/users", status_code=status.HTTP_200_OK)
@@ -108,10 +111,7 @@ async def login_for_access_token(
     token = create_access_token(
         user["username"], user["user_id"], timedelta(minutes=60)
     )
-    return {
-        "access_token": token,
-        "token_type": "bearer",
-    }
+    return {"access_token": token, "token_type": "bearer", "username": user["username"]}
 
 
 def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]) -> dict:
@@ -124,10 +124,12 @@ def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]) -> dict:
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Could not validate user",
             )
+        print("====curr user===", username)
         return {
             "username": username,
             "id": user_id,
         }
+
     except JWTError:
         HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate user"

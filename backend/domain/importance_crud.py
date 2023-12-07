@@ -1,7 +1,7 @@
-from database import create_server_connection, execute_single_read_query
-from datetime import datetime
 import json
+from datetime import datetime
 
+from database import create_server_connection, execute_single_read_query
 
 with open("config/parameters.json", "r") as f:
     config = json.load(f)

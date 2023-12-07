@@ -1,6 +1,6 @@
 <script>
     import { link } from 'svelte-spa-router'
-    import { page, access_token ,is_login } from "../lib/store"
+    import { page, username, access_token ,is_login } from "../lib/store"
 </script>
 
 <!-- 네비게이션바 -->
@@ -24,7 +24,7 @@
                         <a use:link href="/user-login" class="nav-link" on:click={() => {
                             $access_token = ''
                             $is_login = false
-                        }}>로그아웃</a>
+                        }}>로그아웃({$username})</a>
                     </li>
                 {:else}
                     <li class="nav-item">

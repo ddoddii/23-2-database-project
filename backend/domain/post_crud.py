@@ -1,13 +1,15 @@
+import re
 from datetime import datetime
+from typing import List
+
+from pydantic import BaseModel
+
 from database import (
     create_server_connection,
     execute_single_read_query,
-    execute_read_query,
 )
-import re
-from pydantic import BaseModel
-from typing import List
 from domain.importance_crud import create_new_importance
+from domain.user_crud import get_user_id
 
 
 class PostRequest(BaseModel):
@@ -17,19 +19,31 @@ class PostRequest(BaseModel):
 
 def get_post_list():
     connection = create_server_connection()
+    cursor = connection.cursor(dictionary=True)
+
     query = """
-        SELECT * FROM POST
-        ORDER BY created_time DESC;
-        """
-    posts = execute_read_query(connection, query)
+    SELECT post.post_id, post.title, post.content, post.created_time, post.updated_time, users.username
+    FROM post
+    JOIN users ON post.author_id = users.user_id
+    ORDER BY post.created_time DESC;
+    """
+    cursor.execute(query)
+    posts = cursor.fetchall()
+    cursor.close()
     connection.close()
+
     return posts
 
 
 def get_post(post_id: int):
     connection = create_server_connection()
 
-    query = "SELECT * FROM post WHERE post_id = %s;"
+    query = """
+    SELECT post.post_id, post.author_id, post.title, post.content, post.created_time, post.updated_time, post.view_count, post.help_count, users.username
+    FROM post 
+    JOIN users ON post.author_id = users.user_id
+    WHERE post_id = %s;
+    """
     post = execute_single_read_query(connection, query, (post_id,))
 
     connection.close()
@@ -37,22 +51,49 @@ def get_post(post_id: int):
     return post
 
 
-def create_new_post(user_id: int, create_post_request: PostRequest):
+def update_post(post_id: int, post_request: PostRequest):
     connection = create_server_connection()
     cursor = connection.cursor(dictionary=True)
-    # Current time for created_time
+    # Update post title / content
+    query = """
+            UPDATE post
+            SET title = %s, content = %s, updated_time = %s
+            WHERE post_id = %s;
+            """
+    cursor.execute(
+        query, (post_request.title, post_request.content, datetime.now(), post_id)
+    )
+    connection.commit()
+    cursor.close()
+    connection.close()
+
+
+def delete_post(post_id: int):
+    connection = create_server_connection()
+    cursor = connection.cursor(dictionary=True)
+    query = "DELETE FROM post WHERE post_id = %s;"
+    cursor.execute(query, (post_id,))
+    connection.commit()
+    cursor.close()
+    connection.close()
+
+
+def create_new_post(user_id, create_post_request: PostRequest):
+    connection = create_server_connection()
+    cursor = connection.cursor(dictionary=True)
     now = datetime.now()
 
     importance_id = create_new_importance()
 
     # Insert post data into the post table
     post_query = """
-    INSERT INTO post (author_id, importance_id, created_time, title, content)
-    VALUES (%s, %s, %s, %s, %s);
+    INSERT INTO post (author_id, importance_id, created_time, updated_time, title, content)
+    VALUES (%s, %s, %s, %s, %s, %s);
     """
     post_values = (
         user_id,
         importance_id,
+        now,
         now,
         create_post_request.title,
         create_post_request.content,

@@ -16,19 +16,21 @@
 <div class="container my-3">
     <table class="table">
         <thead>
-        <tr class="table-dark">
+        <tr class="text-center table-dark">
             <th>번호</th>
-            <th>제목</th>
+            <th style="width:50%">제목</th>
+            <th>글쓴이</th>
             <th>작성일시</th>
         </tr>
         </thead>
         <tbody>
         {#each post_list as post, i}
-        <tr>
+        <tr class="text-center">
             <td>{i+1}</td>
-            <td>
+            <td class="text-start">
                 <a use:link href="/detail/{post.post_id}">{post.title}</a>
             </td>
+            <td>{ post ? post.username : "" }</td>
             <td>{post.created_time}</td>
         </tr>
         {/each}

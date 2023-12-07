@@ -2,7 +2,7 @@
     import { push } from 'svelte-spa-router'
     import fastapi from "../lib/api"
     import { access_token, username, is_login } from "../lib/store"
-
+    
     let login_username = ""
     let login_password = ""
 
@@ -15,15 +15,18 @@
         }
         fastapi('login', url, params, 
             (json) => {
+                console.log("json: ",json)
                 $access_token = json.access_token
                 $username = json.username
                 $is_login = true
+
                 push("/")
             },
             (json_error) => {
                 error = json_error
             }
         )
+        console.log("curr logged in user:", $username)
     }
 </script>
 

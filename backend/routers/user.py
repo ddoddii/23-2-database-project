@@ -1,10 +1,3 @@
-from fastapi import APIRouter, Depends, HTTPException, Path
-from typing import Annotated
-from pydantic import BaseModel, Field
+from fastapi import APIRouter
 
-
-router = APIRouter(
-    prefix = '/users',
-    tags = ['users']
-)
-
+router = APIRouter(prefix="/users", tags=["users"])
