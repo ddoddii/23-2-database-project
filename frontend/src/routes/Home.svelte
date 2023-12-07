@@ -1,5 +1,4 @@
 <script>
-    import { onMount } from 'svelte';
     import fastapi from "../lib/api"
     import { link } from 'svelte-spa-router'
     import { is_login, keyword } from "../lib/store"
@@ -7,12 +6,7 @@
     let post_list = []
     let kw = ''
 
-    // onMount(() => {
-    //     get_post_list();
-    // });
-
     function search_post_list() {
-        update_imortance_score()
         let params = {
             keyword : $keyword
         }
@@ -23,8 +17,13 @@
         })
         
     }
+    
+    function add_view_count(post_id){
+        add_post_view_count(post_id)
+        add_reply_view_count(post_id)
+    }
 
-    function add_view_count(_post_id){
+    function add_post_view_count(_post_id){
         let url = "/api/post/view"
         let params = {
                 post_id: _post_id
@@ -38,8 +37,24 @@
             });
     }
 
+    function add_reply_view_count(_post_id){
+        let url = "/api/reply/view"
+        let params = {
+                post_id: _post_id
+            }
+        fastapi('post', url, params)
+            .then(() => {           
+            console.log("조회수 증가 성공!");
+            })
+            .catch(error => {
+            console.error("조회수 증가 실패:", error);
+            });
+    }
+
+
+
     function update_imortance_score(){
-        let url = "/api/post/importance_score"
+        let url = "/api/post/update_importance_score"
         fastapi('post', url)
     }
 
@@ -75,6 +90,7 @@
     </div>
 
     <div>
+        <button class="btn btn-secondary" on:click={update_imortance_score}>Update Importance Score</button>
         <button class="btn btn-secondary" on:click={sortByViewCount}>Sort by Views</button>
         <button class="btn btn-secondary" on:click={sortByHelpCount}>Sort by Help Count</button>
         <button class="btn btn-secondary" on:click={sortByCreatedTime}>Sort by Date</button>

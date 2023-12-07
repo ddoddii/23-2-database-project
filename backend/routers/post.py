@@ -6,7 +6,7 @@ from starlette import status
 
 from domain.importance_crud import (
     get_importance,
-    update_all_post_importance_score,
+    update_all_post_importance_score_and_delete,
     get_all_posts,
 )
 from domain.post_crud import (
@@ -90,8 +90,7 @@ def delete_post_api(post_id: int, user: user_dependency):
 
 @router.post("/vote")
 def post_vote_api(request: VotePostRequest, user: user_dependency):
-    user_id = user.get("id")
-    vote_post(user_id, request.post_id)
+    vote_post(request.post_id)
 
 
 @router.post("/view")
@@ -99,6 +98,6 @@ def post_view_api(request: ViewPostRequest):
     view_post(request.post_id)
 
 
-@router.post("/importance_score")
+@router.post("/update_importance_score")
 def view_importance_score_api():
-    update_all_post_importance_score()
+    update_all_post_importance_score_and_delete()

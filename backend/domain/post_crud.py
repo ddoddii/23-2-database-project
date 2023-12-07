@@ -110,6 +110,11 @@ def update_post(post_id: int, post_request: PostRequest):
 def delete_post(post_id: int):
     connection = create_server_connection()
     cursor = connection.cursor(dictionary=True)
+
+    delete_replies_query = "DELETE FROM reply WHERE post_id = %s;"
+    cursor.execute(delete_replies_query, (post_id,))
+    connection.commit()
+
     query = "DELETE FROM post WHERE post_id = %s;"
     cursor.execute(query, (post_id,))
     connection.commit()
@@ -139,52 +144,15 @@ def create_new_post(user_id, create_post_request: PostRequest):
     )
 
     cursor.execute(post_query, post_values)
-    post_id = cursor.lastrowid
-
-    image_urls, video_urls = find_media_urls(create_post_request.content)
-
-    for url in image_urls:
-        image_query = """
-        INSERT INTO image (post_id, image_url)
-        VALUES (%s, %s);
-        """
-        cursor.execute(image_query, (post_id, url))
-
-    for url in video_urls:
-        video_query = """
-        INSERT INTO video (post_id, video_url)
-        VALUES (%s, %s);
-        """
-        cursor.execute(video_query, (post_id, url))
-
     connection.commit()
     cursor.close()
     connection.close()
 
 
-def find_media_urls(content: str) -> (List[str], List[str]):
-    # Regex for image URLs
-    img_pattern = r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+\.(?:jpg|jpeg|png|gif)"
-    # Regex for video URLs
-    video_pattern = r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+\.(?:mp4|avi|mov)"
-
-    img_urls = re.findall(img_pattern, content)
-    video_urls = re.findall(video_pattern, content)
-
-    return img_urls, video_urls
-
-
-def vote_post(user_id, post_id):
+def vote_post(post_id):
     connection = create_server_connection()
     cursor = connection.cursor(dictionary=True)
     try:
-        # Insert into post_voter table
-        insert_query = """
-        INSERT INTO post_voter (post_id, user_id)
-        VALUES (%s, %s);
-        """
-        cursor.execute(insert_query, (post_id, user_id))
-
         # Update help_count in post table
         update_query = """
         UPDATE post

@@ -57,7 +57,7 @@ def get_post(post_id: int):
     return post
 
 
-def update_all_post_importance_score():
+def update_all_post_importance_score_and_delete():
     # 현재 시간
     now = datetime.now(timezone.utc)
     utc_now = now.astimezone(timezone.utc).replace(tzinfo=None)
@@ -70,10 +70,12 @@ def update_all_post_importance_score():
             post["created_time"].astimezone(timezone.utc).replace(tzinfo=None)
         )
         days = (utc_now - utc_created_time).days
-        update_importance_score(post["post_id"], days)
+        new_score = update_importance_score(post["post_id"], days)
+        if check_score_under_threshold(new_score):
+            delete_post_and_replies(post["post_id"])
 
 
-def update_importance_score(post_id: int, days: int):
+def update_importance_score(post_id: int, days: int) -> float:
     connection = create_server_connection()
     now = datetime.now()
     post = get_post(post_id)
@@ -97,9 +99,11 @@ def update_importance_score(post_id: int, days: int):
     cursor.close()
     connection.close()
 
+    return round(new_score, 2)
 
-def check_score_under_threshold(score: int):
-    if score < config["threshold"]:
+
+def check_score_under_threshold(score: float):
+    if score < float(config["threshold"]):
         return True
     return False
 
@@ -120,11 +124,18 @@ def get_all_posts():
     return posts
 
 
-def delete_post(post_id: int):
+def delete_post_and_replies(post_id: int):
     connection = create_server_connection()
     cursor = connection.cursor(dictionary=True)
-    query = "DELETE FROM post WHERE post_id = %s;"
-    cursor.execute(query, (post_id,))
+
+    delete_replies_query = "DELETE FROM reply WHERE post_id = %s;"
+
+    cursor.execute(delete_replies_query, (post_id,))
+    connection.commit()
+
+    delete_post_query = "DELETE FROM post WHERE post_id = %s;"
+
+    cursor.execute(delete_post_query, (post_id,))
     connection.commit()
     cursor.close()
     connection.close()

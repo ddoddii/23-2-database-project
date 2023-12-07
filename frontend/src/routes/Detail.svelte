@@ -14,7 +14,14 @@
     function get_post() {
         fastapi("get", "/api/post/detail/" + post_id, {}, (json) => {
             post = json
-            console.log("=====post====", post)
+            console.log(json)
+        })
+    }
+
+    function get_reply() {
+        fastapi("get", "/api/post/detail/" + reply_id, {}, (json) => {
+            post = json
+            
         })
     }
 
@@ -55,6 +62,23 @@
         }
     }
 
+    function delete_reply(_reply_id,) {
+        if(window.confirm('정말로 삭제하시겠습니까?')) {
+            let url = "/api/reply/delete/" + _reply_id
+            let params = {
+                reply_id: _reply_id
+            }
+            fastapi('delete', url, {}, 
+                (json) => {
+                    push('/')
+                },
+                (err_json) => {
+                    error = err_json
+                }
+            )
+        }
+    }
+
     function vote_post(_post_id) {
         if(window.confirm('정말로 추천하시겠습니까?')) {
             let url = "/api/post/vote"
@@ -71,6 +95,38 @@
             )
         }
     }
+
+    function vote_reply(_reply_id) {
+        if(window.confirm('정말로 추천하시겠습니까?')) {
+            let url = "/api/reply/vote"
+            let params = {
+                reply_id: _reply_id
+            }
+            fastapi('post', url, params, 
+                (json) => {
+                    get_reply()
+                },
+                (err_json) => {
+                    error = err_json
+                }
+            )
+        }
+    }
+
+    function add_reply_view_count(_post_id){
+        let url = "/api/reply/view"
+        let params = {
+                post_id: _post_id
+            }
+        fastapi('post', url, params)
+            .then(() => {           
+            console.log("조회수 증가 성공!");
+            })
+            .catch(error => {
+            console.error("조회수 증가 실패:", error);
+            });
+    }
+
 
 
 </script>
@@ -118,6 +174,18 @@
                     <div>조회수 : {answer.view_count}</div>
                     <div>추천수 : {answer.help_count}</div>
                 </div>
+            </div>
+            <div class="my-3">
+                <button class="btn btn-sm btn-outline-secondary"
+                    on:click="{vote_reply(answer.reply_id)}"> 
+                    추천
+                </button>
+                {#if $username === answer.username}
+                <a use:link href="/reply-modify/{answer.reply_id}" 
+                    class="btn btn-sm btn-outline-secondary">수정</a>
+                <button class="btn btn-sm btn-outline-secondary"
+                on:click={() => delete_reply(answer.reply_id)}>삭제</button>
+                {/if}
             </div>
         </div>
     </div>

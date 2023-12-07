@@ -40,6 +40,21 @@ def get_reply(reply_id: int):
     return reply
 
 
+def update_reply(request, reply_id):
+    connection = create_server_connection()
+    cursor = connection.cursor(dictionary=True)
+    # Update reply content
+    query = """
+                UPDATE reply
+                SET  content = %s, updated_time = %s
+                WHERE reply_id = %s;
+                """
+    cursor.execute(query, (request.content, datetime.now(), reply_id))
+    connection.commit()
+    cursor.close()
+    connection.close()
+
+
 def create_new_reply(user_id: int, post_id: int, reply_request: ReplyRequest):
     connection = create_server_connection()
     cursor = connection.cursor(dictionary=True)
@@ -59,6 +74,63 @@ def create_new_reply(user_id: int, post_id: int, reply_request: ReplyRequest):
         reply_request.content,
     )
     cursor.execute(reply_query, reply_values)
+    connection.commit()
+    cursor.close()
+    connection.close()
+
+
+def vote_reply(reply_id):
+    connection = create_server_connection()
+    cursor = connection.cursor(dictionary=True)
+    try:
+        # Update help_count in reply table
+        update_query = """
+        UPDATE reply
+        SET help_count = help_count + 1
+        WHERE reply_id = %s;
+        """
+        cursor.execute(update_query, (reply_id,))
+
+        # Commit the transaction
+        connection.commit()
+        return True
+
+    except Exception as e:
+        # Rollback in case of error
+        connection.rollback()
+        print(f"An error occurred: {e}")
+        return False
+
+    finally:
+        cursor.close()
+        connection.close()
+
+
+def view_reply(post_id: int):
+    connection = create_server_connection()
+    cursor = connection.cursor(dictionary=True)
+    # Update help_count in reply table
+    update_query = """
+        UPDATE reply
+        SET view_count = view_count + 1
+        WHERE post_id = %s;
+        """
+    cursor.execute(update_query, (post_id,))
+
+    # Commit the transaction
+    connection.commit()
+    return True
+
+    cursor.close()
+    connection.close()
+
+
+def delete_reply(reply_id: int):
+    connection = create_server_connection()
+    cursor = connection.cursor(dictionary=True)
+
+    delete_replies_query = "DELETE FROM reply WHERE reply_id = %s;"
+    cursor.execute(delete_replies_query, (reply_id,))
     connection.commit()
     cursor.close()
     connection.close()

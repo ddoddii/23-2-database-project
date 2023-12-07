@@ -1,0 +1,49 @@
+<script>
+    import { push } from 'svelte-spa-router'
+    import fastapi from "../lib/api"
+
+    export let params = {}
+    const reply_id = params.reply_id
+
+    let title = ''
+    let content = ''
+
+    fastapi("get", "/api/reply/detail/" + reply_id, {}, (json) => {
+        content = json.content
+    })
+
+    function update_reply(event) {
+        event.preventDefault()
+        let url = "/api/reply/update/" + reply_id
+        let params = {
+            content: content,
+        }
+        let token = localStorage.getItem('access_token'); 
+
+        // Set up headers for authentication
+        let headers = {
+            'Authorization': `Bearer ${token}`
+        };
+        
+        fastapi('put', url, params, 
+            (json) => {
+                push('/')
+            },
+            (json_error) => {
+                error = json_error
+            },
+            headers
+        )
+    }
+</script>
+
+<div class="container">
+    <h5 class="my-3 border-bottom pb-2">글 수정</h5>
+    <form method="reply" class="my-3">
+        <div class="mb-3">
+            <label for="content">내용</label>
+            <textarea class="form-control" rows="10" bind:value="{content}"></textarea>
+        </div>
+        <button class="btn btn-primary" on:click="{update_reply}">수정하기</button>
+    </form>
+</div>
