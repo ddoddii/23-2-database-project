@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from database import (
     create_server_connection,
     execute_single_read_query,
+    execute_read_query,
 )
 from domain.importance_crud import create_new_importance
 
@@ -23,7 +24,7 @@ def get_post_list(keyword: str = ""):
     if keyword:
         search = "%%{}%%".format(keyword)
         query = """
-        SELECT post.post_id, post.title, post.content, post.created_time, post.updated_time, users.username
+        SELECT post.post_id, post.title, post.content, post.created_time, post.updated_time,post.view_count, post.help_count, users.username
         FROM post
         JOIN users ON post.author_id = users.user_id
         WHERE post.title LIKE %s OR
@@ -34,7 +35,7 @@ def get_post_list(keyword: str = ""):
         cursor.execute(query, (search, search, search))
     else:
         query = """
-        SELECT post.post_id, post.title, post.content, post.created_time, post.updated_time, users.username
+        SELECT post.post_id, post.title, post.content, post.created_time, post.updated_time,post.view_count, post.help_count, users.username
         FROM post
         JOIN users ON post.author_id = users.user_id
         ORDER BY post.created_time DESC;
@@ -50,18 +51,43 @@ def get_post_list(keyword: str = ""):
 
 def get_post(post_id: int):
     connection = create_server_connection()
-
+    cursor = connection.cursor(dictionary=True)
     query = """
     SELECT post.post_id, post.author_id, post.importance_id, post.title, post.content, post.created_time, post.updated_time, post.view_count, post.help_count, users.username
     FROM post 
     JOIN users ON post.author_id = users.user_id
     WHERE post_id = %s;
     """
-    post = execute_single_read_query(connection, query, (post_id,))
+    cursor.execute(query, (post_id,))
+    post = cursor.fetchone()
 
+    # Reply for that post
+    replies_query = """
+    SELECT reply_id, author_id, importance_id, content, created_time, updated_time, 
+           help_count, view_count, title,  users.username
+    FROM reply
+    JOIN users ON reply.author_id = users.user_id
+    WHERE post_id = %s;
+    """
+    cursor.execute(replies_query, (post_id,))
+    replies = cursor.fetchall()
     connection.close()
 
-    return post
+    post_info = {
+        "post_id": post["post_id"],
+        "author_id": post["author_id"],
+        "importance_id": post["importance_id"],
+        "title": post["title"],
+        "content": post["content"],
+        "created_time": post["created_time"],  # format datetime
+        "updated_time": post["updated_time"],
+        "view_count": post["view_count"],
+        "help_count": post["help_count"],
+        "username": post["username"],
+        "answers": replies,  # include replies as nested list
+    }
+
+    return post_info
 
 
 def update_post(post_id: int, post_request: PostRequest):

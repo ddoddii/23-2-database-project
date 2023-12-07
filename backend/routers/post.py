@@ -7,6 +7,7 @@ from starlette import status
 from domain.importance_crud import (
     get_importance,
     update_all_post_importance_score,
+    get_all_posts,
 )
 from domain.post_crud import (
     get_post,

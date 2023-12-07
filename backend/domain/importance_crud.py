@@ -108,10 +108,11 @@ def get_all_posts():
     connection = create_server_connection()
     cursor = connection.cursor(dictionary=True)
     query = """
-                SELECT post.post_id, post.importance_id,post.created_time, DATEDIFF(NOW(), created_time) AS day
-                FROM post
-                ORDER BY post.created_time DESC;
-                """
+        SELECT post.post_id, post.title, post.content, post.created_time, post.updated_time, users.username
+        FROM post
+        JOIN users ON post.author_id = users.user_id
+        ORDER BY post.created_time DESC;
+        """
     cursor.execute(query)
     posts = cursor.fetchall()
     cursor.close()

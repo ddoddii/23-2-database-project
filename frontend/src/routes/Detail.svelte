@@ -3,16 +3,14 @@
     import { link, push } from 'svelte-spa-router'
     import { is_login, username } from "../lib/store"
     import { marked } from 'marked'
-    export let params = {}
-    $: if ($username) {
-        console.log("Logged in user:", $username);
-    } else {
-        console.log("No logged in user");
-    }
-    let post_id = params.post_id
 
-    let post = {content: ''}
+    export let params = {}
+
+    let post_id = params.post_id
     let content = ""
+    let post = {content: '', answers: []}
+
+
     function get_post() {
         fastapi("get", "/api/post/detail/" + post_id, {}, (json) => {
             post = json
@@ -106,6 +104,33 @@
             </div>
         </div>
     </div>
+    <!-- 답변 목록 -->
+    <h5 class="border-bottom my-3 py-2">{post.answers.length}개의 답변이 있습니다.</h5>
+    {#each post.answers as answer}
+    <div class="card my-3">
+        <div class="card-body">
+            <div class="card-text" style="white-space: pre-line;">{answer.content}</div>
+            <div class="d-flex justify-content-end">
+                <div class="badge bg-light text-dark p-2">
+                    <div>작성자 : {answer.username}</div>
+                    <div>작성 시간 : {answer.created_time}</div>
+                    <div>수정 시간 : {answer.updated_time}</div>
+                    <div>조회수 : {answer.view_count}</div>
+                    <div>추천수 : {answer.help_count}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {/each}
+    <!-- 답변 등록 -->
+    <form method="post" class="my-3">
+        <div class="mb-3">
+            <textarea rows="10" bind:value={content} class="form-control" />
+        </div>
+        <input type="submit" value="답변등록" class="btn btn-primary" on:click="{post_reply}" />
+    </form>
+
+    
 
 
 </div>

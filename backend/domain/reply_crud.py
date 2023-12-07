@@ -6,13 +6,27 @@ from domain.importance_crud import create_new_importance
 
 
 class ReplyRequest(BaseModel):
-    title: str
     content: str
 
 
 class Reply(BaseModel):
     id: int
     content: str
+    create_date: datetime
+
+
+def get_post_reply(post_id: int):
+    connection = create_server_connection()
+    cursor = connection.cursor(dictionary=True)
+
+    query = """
+    SELECT * FROM reply
+    WHERE post_id = %s;
+    """
+    cursor.execute(query, (post_id,))
+    replies = cursor.fetchall()
+    connection.close()
+    return replies
 
 
 def get_reply(reply_id: int):
@@ -33,15 +47,15 @@ def create_new_reply(user_id: int, post_id: int, reply_request: ReplyRequest):
     importance_id = create_new_importance()
 
     reply_query = """
-    INSERT INTO reply (post_id, author_id, importance_id, created_time, title, content)
-    VALUES (%s, %s, %s, %s, %s, %s);
+    INSERT INTO reply (post_id, author_id, importance_id, created_time,updated_time, content)
+    VALUES (%s, %s, %s, %s, %s,  %s);
     """
     reply_values = (
         post_id,
         user_id,
         importance_id,
         now,
-        reply_request.title,
+        now,
         reply_request.content,
     )
     cursor.execute(reply_query, reply_values)
