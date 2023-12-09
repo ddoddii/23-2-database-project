@@ -113,21 +113,6 @@
         }
     }
 
-    function add_reply_view_count(_post_id){
-        let url = "/api/reply/view"
-        let params = {
-                post_id: _post_id
-            }
-        fastapi('post', url, params)
-            .then(() => {           
-            console.log("조회수 증가 성공!");
-            })
-            .catch(error => {
-            console.error("조회수 증가 실패:", error);
-            });
-    }
-
-
 
 </script>
 
@@ -151,7 +136,7 @@
                     on:click="{vote_post(post.post_id)}"> 
                     추천
                 </button>
-                {#if $username === post.username}
+                {#if $username === post.username|| $username == 'admin'}
                 <a use:link href="/post-modify/{post.post_id}" 
                     class="btn btn-sm btn-outline-secondary">수정</a>
                 <button class="btn btn-sm btn-outline-secondary"
@@ -180,7 +165,7 @@
                     on:click="{vote_reply(answer.reply_id)}"> 
                     추천
                 </button>
-                {#if $username === answer.username}
+                {#if $username === answer.username || $username == 'admin'}
                 <a use:link href="/reply-modify/{answer.reply_id}" 
                     class="btn btn-sm btn-outline-secondary">수정</a>
                 <button class="btn btn-sm btn-outline-secondary"

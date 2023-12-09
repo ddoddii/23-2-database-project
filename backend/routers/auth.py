@@ -91,12 +91,28 @@ async def login_for_access_token(
 def get_all_users():
     connection = create_server_connection()
     query = """
-    SELECT username FROM users;
+    SELECT 
+    u.user_id, 
+    u.username, 
+    COALESCE(p.post_count, 0) as post_count,
+    COALESCE(r.reply_count, 0) as reply_count
+FROM 
+    users u
+LEFT JOIN 
+    (SELECT author_id, COUNT(*) as post_count FROM post GROUP BY author_id) p 
+    ON u.user_id = p.author_id
+LEFT JOIN 
+    (SELECT author_id, COUNT(*) as reply_count FROM reply GROUP BY author_id) r 
+    ON u.user_id = r.author_id;
     """
     user_names = execute_read_query(connection, query)
     connection.close()
-    user_names_list = [name["username"] for name in user_names]
-    return {"users": user_names_list}
+    return {"users": user_names}
+
+
+@router.get("/users/posts", status_code=status.HTTP_200_OK)
+def get_users_posts_count(user_id: int):
+    return None
 
 
 @router.post("/auth/token", response_model=Token)

@@ -8,7 +8,7 @@
   import UserLogin from "./routes/UserLogin.svelte"
   import QuestionModify from "./routes/QuestionModify.svelte"
   import ReplyModify from './routes/ReplyModify.svelte'
-
+  import Admin from './routes/Admin.svelte'
 
   const routes = {
     '/': Home,
@@ -17,7 +17,8 @@
     '/user-create': UserCreate,
     '/user-login': UserLogin,
     '/post-modify/:post_id': QuestionModify,
-    '/reply-modify/:reply_id' : ReplyModify
+    '/reply-modify/:reply_id' : ReplyModify,
+    '/admin' : Admin
   }
 </script>
 <Navigation />

@@ -1,7 +1,7 @@
 <script>
     import fastapi from "../lib/api"
     import { link } from 'svelte-spa-router'
-    import { is_login, keyword } from "../lib/store"
+    import { is_login, username, keyword } from "../lib/store"
 
     let post_list = []
     let kw = ''
@@ -79,6 +79,7 @@
             <a use:link href="/question-create" 
                 class="btn btn-primary {$is_login ? '' : 'disabled'}">글 등록하기</a>
         </div>
+
         <div class="col-6">
             <div class="input-group">
                 <input type="text" class="form-control" bind:value="{kw}">
@@ -122,4 +123,16 @@
         {/each}
         </tbody>
     </table>
+
+    
+    <div class="col-6">
+
+        <div class="col-6">
+            {#if $username == "admin"}
+            <a use:link href="/admin" 
+                class="btn btn-primary {$is_login ? '' : 'disabled'}">관리자 페이지</a>
+            {/if}
+        </div>
+    </div>
+
 </div>

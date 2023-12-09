@@ -5,7 +5,6 @@ from pydantic import BaseModel
 
 from domain.reply_crud import (
     create_new_reply,
-    ReplyRequest,
     get_reply,
     update_reply,
     vote_reply,
@@ -45,11 +44,7 @@ def reply_detail_api(reply_id: int):
 
 
 @router.put("/update/{reply_id}")
-def update_reply_api(request: ReplyRequest, reply_id: int, user: user_dependency):
-    user_id = user.get("id")
-    reply = get_reply(reply_id)
-    if reply["author_id"] != user_id:
-        raise HTTPException(status_code=401, detail="Not Authorized to update post")
+def update_reply_api(request: ReplyRequest, reply_id: int):
     update_reply(request, reply_id)
 
 
@@ -64,14 +59,8 @@ def reply_view_api(request: ViewPostRequest):
 
 
 @router.delete("/delete/{reply_id}")
-def delete_reply_api(reply_id: int, user: user_dependency):
+def delete_reply_api(reply_id: int):
     try:
-        user_id = user.get("id")
-        reply = get_reply(reply_id)
-        if reply["author_id"] != user_id:
-            raise HTTPException(
-                status_code=401, detail="Not Authorized to delete reply"
-            )
         delete_reply(reply_id)
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Failed to update reply: {str(e)}")
