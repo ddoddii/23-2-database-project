@@ -144,6 +144,7 @@
 
 
 ### 로그인
+- 사용자 인증은 Bearer OAuth token 을 사용
 
 <details>
     <summary>구현 화면</summary>
