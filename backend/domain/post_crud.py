@@ -64,7 +64,7 @@ def get_post(post_id: int):
     # Reply for that post
     replies_query = """
     SELECT reply_id, author_id, importance_id, content, created_time, updated_time, 
-           help_count, view_count, title,  users.username
+           help_count, view_count,  users.username
     FROM reply
     JOIN users ON reply.author_id = users.user_id
     WHERE post_id = %s;
