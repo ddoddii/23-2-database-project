@@ -1,18 +1,25 @@
 # Database Project
 - Author : 2019143073 엄소은
-## ER-Diagram & Mapping ERD to Relational Schema
+### Table of Contents
+1. [ER-Diagram & Mapping ERD to Relational Schema](#1-er-diagram--mapping-erd-to-relational-schema)
+2. [기능 명세](#2-기능-명세)
+3. [실행 방법](#3-실행-방법)
+4. [구현 결과](#4-구현-결과)
 
-### 1. ER-Diagram
-<img width="663" alt="image" src="https://github.com/ddoddii/ddoddii.github.io/assets/95014836/86105c22-6dfa-4215-b5f0-b9cb897cc26d">
 
-### 2. Relational Schema
-<img width="806" alt="image" src="https://github.com/ddoddii/ddoddii.github.io/assets/95014836/b6dbf4fb-df91-4d61-870d-d9ba90779250">
+## 1. ER-Diagram & Mapping ERD to Relational Schema
 
-### 3. ERD 작성과 관련해 가정한 내용
+### ER-Diagram
+<img width="500" alt="image" src="https://github.com/ddoddii/ddoddii.github.io/assets/95014836/86105c22-6dfa-4215-b5f0-b9cb897cc26d">
+
+### Relational Schema
+<img width="500" alt="image" src="https://github.com/ddoddii/ddoddii.github.io/assets/95014836/da086b2f-c371-435c-8d0a-dc7359fa69e9">
+
+### ERD 작성과 관련해 가정한 내용
 1. 사용자는 다른 사용자의 글을 편집하거나 삭제할 수 없다.
 2. 사용자는 본인의 글 및 답글에 '도움이 되어요' 를 클릭할 수 없다.
 
-### 4. 일정
+### 일정
 - 11/20
   - [X] 스키마 설계
   - [X] 데이터베이스 세팅
@@ -27,19 +34,11 @@
   - [X] 중요도 기능
   - [X] 자동 삭제 기능
 - 12/11
-  - [ ] 보고서 작성
+  - [X] 보고서 작성
 
-## 시스템 설계 문서 및 중간 구현 내용
-- Server Framework : FastAPI
-- python version : 3.10
-- RDBMS : MySQL
-
-### Application Flowchart
-
-<img width="863" alt="image" src="https://github.com/ddoddii/ddoddii.github.io/assets/95014836/e51b3777-a685-44c0-bc2e-79117fe29bd9">
 
 -------
-## 기능 명세
+## 2. 기능 명세
 ### 사용자 관리
 - [X] 사용자 만드는 기능
   - [X] 사용자 type 은 관리자(1), 일반 사용자(0) 으로 한다
@@ -89,3 +88,82 @@
     - 12/7 자정 : 조회수 30, '중요해요' : 5 이면, 중요도 = [20 * 0.5^2 + 5 * 0.5^2] * 0.8^3 = 4.48 이다. 
     - 12/8 자정 : 조회수 40, '중요해요' : 6 이면, 중요도 = [40 * 0.5^3 + 6 * 0.5^3] * 0.8^3 = 2.994 이다. 
     - 12/8 에 글의 중요도가 임계값(3) 이하이므로 글은 자동삭제 된다.
+
+----
+## 3. 실행 방법
+### 환경
+- Server Framework : FastAPI
+- Front Framework : Svelte
+- python version : 3.10
+- node version : v18.17.0
+- RDBMS : MySQL 8.0
+
+- backend 
+  1. `cd backend`
+  2. `pip install -r requirements.txt`
+  3. `uvicorn main:app --reload` 
+
+- frontend
+  1. `cd frontend`
+  2. `npm run dev`
+- Running in http://localhost:5173/
+----
+## 4. 구현 결과
+
+### 시작 페이지
+
+- **글 목록 정렬 기능** 
+  - Sort by Views
+  - Sort by Help Count
+  - Sort by Date
+- **중요도 기반 중요하지 않은 글 삭제** 
+  - Update Importance Score
+
+<img width="1168" alt="image" src="https://github.com/ddoddii/ddoddii.github.io/assets/95014836/95633b71-8e88-446f-9539-2c86a4bfd4ee">
+
+
+
+### 회원가입
+- users 테이블에 유저 정보 저장
+- 입력한 비밀번호는 hash 알고리즘을 이용해 암호화하여 저장
+
+
+<img width="1168" alt="image" src="https://github.com/ddoddii/ddoddii.github.io/assets/95014836/4a69bff3-8437-412c-a46d-51ac2fbf98d8">
+
+
+### 로그인
+
+<img width="1168" alt="image" src="https://github.com/ddoddii/ddoddii.github.io/assets/95014836/c845888e-886d-4e13-b81d-d50df3ba7b73">
+
+<img width="1168" alt="image" src="https://github.com/ddoddii/ddoddii.github.io/assets/95014836/4938da46-7d8f-431a-a552-88c2c74d6754">
+
+### 글 등록하기 
+- 글은 Markdown 형식을 지원해서, Html format 으로 image url 을 삽입하면 이미지가 렌더링 되도록 구현
+
+<img width="1168" alt="image" src="https://github.com/ddoddii/ddoddii.github.io/assets/95014836/3700ba53-6e41-4f5e-aff2-a459ca6296c7">
+
+<img width="1168" alt="image" src="https://github.com/ddoddii/ddoddii.github.io/assets/95014836/34d63c2c-76d8-496d-9349-21267c8b5a4a">
+
+### 글 수정하기 
+- 글 수정하기 버튼은 글 작성한 본인만 보이도록 설정
+
+<img width="1168" alt="image" src="https://github.com/ddoddii/ddoddii.github.io/assets/95014836/ad755af0-ffcf-41ff-bf90-485aed55084d">
+
+<img width="1168" alt="image" src="https://github.com/ddoddii/ddoddii.github.io/assets/95014836/10ad6fc6-049a-4fe8-985b-9d106b6b3b1b">
+
+
+### 추천 누르기
+
+<img width="1168" alt="image" src="https://github.com/ddoddii/ddoddii.github.io/assets/95014836/4553df3e-f6be-45d9-9eb4-2a74f518068e">
+
+### 글 삭제하기
+- 글 삭제하기 버튼은 글 작성한 본인만 보이도록 설정
+
+<img width="1168" alt="image" src="https://github.com/ddoddii/ddoddii.github.io/assets/95014836/c3b50022-2ab4-4876-8e71-a5f77440ff86">
+
+### 답글 달기
+<img width="1168" alt="image" src="https://github.com/ddoddii/ddoddii.github.io/assets/95014836/633609df-2e57-4a01-96f6-5fed6d54ead9">
+
+<img width="1168" alt="image" src="https://github.com/ddoddii/ddoddii.github.io/assets/95014836/ca0e02b7-183b-47ea-a909-dfb85ddac886">
+
+
