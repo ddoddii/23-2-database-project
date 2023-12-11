@@ -119,7 +119,14 @@
 - **중요도 기반 중요하지 않은 글 삭제** 
   - Update Importance Score
 
+<details>
+    <summary>구현 화면</summary>
+
 <img width="1168" alt="image" src="https://github.com/ddoddii/ddoddii.github.io/assets/95014836/95633b71-8e88-446f-9539-2c86a4bfd4ee">
+
+</details>
+
+
 
 
 
@@ -127,43 +134,95 @@
 - users 테이블에 유저 정보 저장
 - 입력한 비밀번호는 hash 알고리즘을 이용해 암호화하여 저장
 
+<details>
+    <summary>구현 화면</summary>
 
 <img width="1168" alt="image" src="https://github.com/ddoddii/ddoddii.github.io/assets/95014836/4a69bff3-8437-412c-a46d-51ac2fbf98d8">
 
+</details>
+
+
 
 ### 로그인
+
+<details>
+    <summary>구현 화면</summary>
 
 <img width="1168" alt="image" src="https://github.com/ddoddii/ddoddii.github.io/assets/95014836/c845888e-886d-4e13-b81d-d50df3ba7b73">
 
 <img width="1168" alt="image" src="https://github.com/ddoddii/ddoddii.github.io/assets/95014836/4938da46-7d8f-431a-a552-88c2c74d6754">
 
+</details>
+
+
+
+
 ### 글 등록하기 
 - 글은 Markdown 형식을 지원해서, Html format 으로 image url 을 삽입하면 이미지가 렌더링 되도록 구현
+- Home 에서 글을 누르면 조회수가 1 증가
+
+<details>
+    <summary>구현 화면</summary>
 
 <img width="1168" alt="image" src="https://github.com/ddoddii/ddoddii.github.io/assets/95014836/3700ba53-6e41-4f5e-aff2-a459ca6296c7">
 
 <img width="1168" alt="image" src="https://github.com/ddoddii/ddoddii.github.io/assets/95014836/34d63c2c-76d8-496d-9349-21267c8b5a4a">
 
+</details>
+
+
+
 ### 글 수정하기 
 - 글 수정하기 버튼은 글 작성한 본인만 보이도록 설정
+
+<details>
+    <summary>구현 화면</summary>
 
 <img width="1168" alt="image" src="https://github.com/ddoddii/ddoddii.github.io/assets/95014836/ad755af0-ffcf-41ff-bf90-485aed55084d">
 
 <img width="1168" alt="image" src="https://github.com/ddoddii/ddoddii.github.io/assets/95014836/10ad6fc6-049a-4fe8-985b-9d106b6b3b1b">
 
 
+</details>
+
+
+
 ### 추천 누르기
+- 추천 버튼을 누르면 추천수가 1 추가
+
+<details>
+    <summary>구현 화면</summary>
 
 <img width="1168" alt="image" src="https://github.com/ddoddii/ddoddii.github.io/assets/95014836/4553df3e-f6be-45d9-9eb4-2a74f518068e">
+
+</details>
+
+
 
 ### 글 삭제하기
 - 글 삭제하기 버튼은 글 작성한 본인만 보이도록 설정
 
+<details>
+    <summary>구현 화면</summary>
+
 <img width="1168" alt="image" src="https://github.com/ddoddii/ddoddii.github.io/assets/95014836/c3b50022-2ab4-4876-8e71-a5f77440ff86">
 
+</details>
+
+
+
 ### 답글 달기
+- 답글에도 추천을 누를 수 있음
+
+
+<details>
+    <summary>구현 화면</summary>
+
 <img width="1168" alt="image" src="https://github.com/ddoddii/ddoddii.github.io/assets/95014836/633609df-2e57-4a01-96f6-5fed6d54ead9">
 
 <img width="1168" alt="image" src="https://github.com/ddoddii/ddoddii.github.io/assets/95014836/ca0e02b7-183b-47ea-a909-dfb85ddac886">
+
+</details>
+
 
 

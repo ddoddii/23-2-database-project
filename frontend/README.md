@@ -1,1 +1,0 @@
-# Front End for DB project
